@@ -6,15 +6,17 @@
     <title>Welcome Aboard the Javascript Quiz!</title>
     <!-- Link to your CSS file -->
     <link rel="stylesheet" href="style.css" />
+    
   </head>
   <body>
+
     <div id="scoreboard" class="scoreboard"></div>
 
     <button id="start-btn">Start Quiz</button>
     <div id="quiz-container"></div>
     <button id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
-    <button id="next-btn" style="display: none" onclick="nextQuestion()">
-      Next Question
+
+     
     </button>
     <div id="timer" class="timer"></div>
 
@@ -22,6 +24,8 @@
 
     <audio id="rightSound" src="right.wav"></audio>
     <audio id="wrongSound" src="wrong.wav"></audio>
+
+    <div id="previous-scores"></div>
 
     <!-- Link to your JavaScript file -->
     <script src="script.js"></script>

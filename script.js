@@ -2,7 +2,6 @@
 const startBtn = document.getElementById("start-btn");
 const quizContainer = document.getElementById("quiz-container");
 const submitBtn = document.getElementById("submit-btn");
-const nextBtn = document.getElementById("next-btn");
 const leaveBtn = document.getElementById("leave-btn");
 const rightSound = document.getElementById("rightSound");
 const wrongSound = document.getElementById("wrongSound");
@@ -191,16 +190,24 @@ const questions = [
 
 // Declare functions
 function startQuiz() {
-  if (!quizStarted) {
-    quizStarted = true;
-    currentQuestionIndex = 0;
-    score = 0;
-    startBtn.style.display = "none";
-    submitBtn.style.display = "block";
-    leaveBtn.style.display = "block";
-    loadQuestion();
-    startTimer();
-  }
+  quizStarted = true;
+  currentQuestionIndex = 0;
+  score = 0;
+  startBtn.style.display = "none";
+  submitBtn.style.display = "block";
+  leaveBtn.style.display = "block";
+
+  console.log("Before timer update:", timerDisplay.innerHTML);
+
+  // Update the timer display
+  timerDisplay.innerHTML = formatTime(totalTime);
+
+  // Log to check the order of execution
+  console.log("After timer update:", timerDisplay.innerHTML);
+
+  loadQuestion();
+  startTimer();
+  displayPreviousScores(false);
 }
 
 function shuffleQuestions() {
@@ -217,7 +224,6 @@ function leaveQuiz() {
   score = 0;
   quizContainer.innerHTML = "";
   submitBtn.style.display = "none";
-  nextBtn.style.display = "none";
   leaveBtn.style.display = "none";
 }
 
@@ -227,15 +233,17 @@ function loadQuestion() {
     <h2>${currentQuestion.question}</h2>
     <ul id="answer-list">
       ${currentQuestion.options
-        .map(
-          (option, index) =>
-            `<li onclick="selectAnswer(${index})">${option}</li>`
-        )
+        .map((option, index) => `<li>${option}</li>`)
         .join("")}
     </ul>
   `;
+
+  const options = document.querySelectorAll("#answer-list li");
+  options.forEach((option, index) => {
+    option.addEventListener("click", () => selectAnswer(index));
+  });
+
   submitBtn.style.display = "none";
-  nextBtn.style.display = "none";
 }
 
 function selectAnswer(index) {
@@ -255,13 +263,12 @@ function submitAnswer() {
       ];
 
     if (answerText === correctAnswer) {
-      score++;
       showFeedback(true);
     } else {
       showFeedback(false);
       // Adjust the timer if needed on incorrect answers
       // For example, subtract 10 seconds:
-      timer -= 10;
+      subtractTime(5);
     }
 
     currentQuestionIndex++;
@@ -270,28 +277,102 @@ function submitAnswer() {
       loadQuestion();
       submitBtn.style.display = "none";
     } else {
+      // nextBtn.style.display = "block";
       endGame();
     }
-
-    nextBtn.style.display = "block";
   }
 }
 
+function subtractTime(seconds) {
+  let currentTime =
+    parseInt(timerDisplay.innerHTML.split(":")[0]) * 60 +
+    parseInt(timerDisplay.innerHTML.split(":")[1]);
+  currentTime -= seconds;
+  timerDisplay.innerHTML = formatTime(currentTime);
+}
+
 function nextQuestion() {
+  console.log("next");
   scoreboard.innerHTML = "";
   if (currentQuestionIndex < questions.length) {
     loadQuestion();
+    submitBtn.style.display = "none";
+    nextBtn.style.display = "none"; // Hide the next button initially
   } else {
     endGame();
   }
-  nextBtn.style.display = "none";
 }
 
 function endGame() {
   scoreboard.innerHTML = `Your final score is ${score} out of ${questions.length}.`;
+  const userInitials = prompt("Enter your initials:");
+
+  // Save user's initials and score to local storage
+  saveScore(userInitials, score);
+
+  // Display previous scores
+  displayPreviousScores(true);
+
   submitBtn.style.display = "none";
-  nextBtn.style.display = "none";
+
   leaveBtn.style.display = "none";
+
+  leaveQuiz();
+}
+
+function saveScore(initials, score) {
+  clearInterval(timer);
+  // Retrieve previous scores from local storage
+  const previousScores =
+    JSON.parse(localStorage.getItem("previousScores")) || [];
+
+  // Add current score to the list
+  previousScores.push({ initials, score });
+
+  // Save updated scores to local storage
+  localStorage.setItem("previousScores", JSON.stringify(previousScores));
+
+  leaveQuiz();
+  startBtn.style.display = "block";
+  displayPreviousScores(true);
+}
+
+const previousScoresDiv = document.createElement("div");
+previousScoresDiv.id = "previous-scores-div";
+previousScoresDiv.style.overflow = "auto";
+previousScoresDiv.style.position = "fixed";
+previousScoresDiv.style.bottom = "0";
+previousScoresDiv.style.width = "100%";
+previousScoresDiv.style.maxHeight = "250px";
+previousScoresDiv.style.border = "1px solid #ccc"; // Border style
+previousScoresDiv.style.padding = "10px";
+document.body.appendChild(previousScoresDiv);
+
+function displayPreviousScores(show) {
+  const previousScoresContainer = document.getElementById(
+    "previous-scores-div"
+  );
+
+  if (show) {
+    // Retrieve previous scores from local storage
+    const previousScores =
+      JSON.parse(localStorage.getItem("previousScores")) || [];
+
+    const filteredScores = previousScores.filter(
+      (entry) => entry.initials !== null
+    );
+
+    // Display previous scores
+    previousScoresContainer.innerHTML = "<h3>Previous Scores:</h3>";
+    previousScores.forEach((entry) => {
+      const entryElement = document.createElement("p");
+      entryElement.textContent = `${entry.initials}: ${entry.score} out of ${questions.length}`;
+      previousScoresContainer.appendChild(entryElement);
+    });
+  } else {
+    // Hide previous scores
+    previousScoresContainer.innerHTML = "";
+  }
 }
 
 function showFeedback(isCorrect) {
@@ -299,14 +380,26 @@ function showFeedback(isCorrect) {
   feedback.classList.add("feedback");
   feedback.textContent = isCorrect ? "Correct! 🎉" : "Wrong! 😞";
   document.body.appendChild(feedback);
-  scoreboard.innerHTML = `Score: ${score}`;
+
+  if (isCorrect) {
+    score++; // Increment the score only if the answer is correct
+  }
+
+  scoreboard.innerHTML = `Correct Answers: ${score} out of 20`;
+
   if (isCorrect) {
     rightSound.play();
   } else {
     wrongSound.play();
   }
+
   setTimeout(function () {
     document.body.removeChild(feedback);
+
+    // Check if the game has ended and update the scoreboard accordingly
+    if (currentQuestionIndex >= questions.length) {
+      scoreboard.innerHTML = `Your final score is ${score} out of ${questions.length}.`;
+    }
   }, 1500);
 }
 
@@ -314,16 +407,26 @@ function startTimer() {
   let timeRemaining = timeLimitInSeconds;
   timer = setInterval(function () {
     timeRemaining--;
-    // Display or update the timer on your UI if needed
-    if (timeRemaining <= 0) {
+    if (timeRemaining >= 0) {
+      timerDisplay.innerHTML = formatTime(timeRemaining); // Update the timer display
+    } else {
       clearInterval(timer);
       endGame();
     }
   }, 1000);
 }
 
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  const formattedMinutes = String(minutes).padStart(2, "0");
+  const formattedSeconds = String(remainingSeconds).padStart(2, "0");
+  return `${formattedMinutes}:${formattedSeconds}`;
+}
+
 // Event listeners
 startBtn.addEventListener("click", startQuiz);
 submitBtn.addEventListener("click", submitAnswer);
-nextBtn.addEventListener("click", nextQuestion);
 leaveBtn.addEventListener("click", leaveQuiz);
+
+displayPreviousScores(questions.length > 0);
