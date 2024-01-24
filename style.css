@@ -1,0 +1,55 @@
+#next-btn,
+#submit-btn,
+#next-btn {
+  display: none; /* Initially hide the buttons */
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  cursor: pointer;
+  display: block;
+  margin: 0px 200px 10px 200px; /* Add some margin for spacing */
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  background-color: #fff; /* Set the initial background color to white (empty) */
+}
+
+ul li.active {
+  background-color: #000; /* Change background color to black when clicked (filled) */
+  color: #fff; /* Change text color for better visibility */
+}
+
+ul li.selected {
+  background-color: #000; /* Keep the selected state filled */
+  color: #fff; /* Change text color for better visibility */
+}
+
+.feedback {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.scoreboard {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+#start-btn {
+  display: block;
+  margin: auto; /* Center the button horizontally */
+  margin-top: 20vh; /* Adjust the top margin for vertical centering */
+}
+
+#leave-btn {
+  display: block;
+  margin: auto;
+  margin-top: 20vh;
+}
+
+/* Add any additional styles as needed */
