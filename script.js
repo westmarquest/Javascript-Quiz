@@ -387,7 +387,7 @@ function showFeedback(isCorrect) {
   feedback.style.fontWeight = "bold";
   feedback.style.textAlign = "center";
   feedback.style.zIndex = "9999";
-  feedback.textContent = isCorrect ? "Correct! 🎉" : "Wrong! 😞";
+  feedback.textContent = isCorrect ? "Correct! 🍓" : "Wrong! 🫐";
   document.body.appendChild(feedback);
 
   if (isCorrect) {
