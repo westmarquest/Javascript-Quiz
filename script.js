@@ -1,4 +1,3 @@
-// Declare variables at the beginning to ensure they have global scope
 const startBtn = document.getElementById("start-btn");
 const quizContainer = document.getElementById("quiz-container");
 const submitBtn = document.getElementById("submit-btn");
@@ -19,7 +18,6 @@ let score = 0;
 let quizStarted = false;
 const timeLimitInSeconds = 60;
 
-// Retrieve user's score from local storage
 const userScore = localStorage.getItem("userScore");
 if (userScore) {
   score = parseInt(userScore, 10);
@@ -188,7 +186,6 @@ const questions = [
   },
 ];
 
-// Declare functions
 function startQuiz() {
   quizStarted = true;
   currentQuestionIndex = 0;
@@ -197,17 +194,11 @@ function startQuiz() {
   submitBtn.style.display = "block";
   leaveBtn.style.display = "block";
 
-  console.log("Before timer update:", timerDisplay.innerHTML);
-
-  // Update the timer display
   timerDisplay.innerHTML = formatTime(totalTime);
-
-  // Log to check the order of execution
-  console.log("After timer update:", timerDisplay.innerHTML);
 
   loadQuestion();
   startTimer();
-  displayPreviousScores(false);
+  displayPreviousScores(true);
 }
 
 function shuffleQuestions() {
@@ -217,8 +208,17 @@ function shuffleQuestions() {
   }
 }
 
-function leaveQuiz() {
-  scoreboard.innerHTML = `Score: ${score} out of ${questions.length}`;
+function leaveQuiz(scoreboardInfo) {
+  clearInterval(timer); // Stop the timer
+  if (scoreboardInfo && scoreboardInfo.length > 0) {
+    // Display scoreboard information
+    scoreboard.innerHTML = `Score: ${score} out of ${questions.length}`;
+    scoreboard.classList.remove("bye-text");
+  } else {
+    // If no scoreboard information available, display "BYE!"
+    scoreboard.innerHTML = "BYE!";
+    scoreboard.classList.add("bye-text");
+  }
   quizStarted = false;
   currentQuestionIndex = 0;
   score = 0;
@@ -266,8 +266,6 @@ function submitAnswer() {
       showFeedback(true);
     } else {
       showFeedback(false);
-      // Adjust the timer if needed on incorrect answers
-      // For example, subtract 10 seconds:
       subtractTime(5);
     }
 
@@ -277,18 +275,27 @@ function submitAnswer() {
       loadQuestion();
       submitBtn.style.display = "none";
     } else {
-      // nextBtn.style.display = "block";
       endGame();
     }
   }
 }
 
 function subtractTime(seconds) {
-  let currentTime =
-    parseInt(timerDisplay.innerHTML.split(":")[0]) * 60 +
-    parseInt(timerDisplay.innerHTML.split(":")[1]);
-  currentTime -= seconds;
-  timerDisplay.innerHTML = formatTime(currentTime);
+  // Get the current time from the timerDisplay element
+  let currentMinutes = parseInt(timerDisplay.innerHTML.split(":")[0], 10);
+  let currentSeconds = parseInt(timerDisplay.innerHTML.split(":")[1], 10);
+
+  // Convert current time to seconds
+  let currentTimeInSeconds = currentMinutes * 60 + currentSeconds;
+
+  // Subtract the specified seconds
+  let newTimeInSeconds = currentTimeInSeconds - seconds;
+
+  // Ensure the time does not go below 0
+  newTimeInSeconds = Math.max(newTimeInSeconds, 0);
+
+  // Format the new time and update the timer display
+  timerDisplay.innerHTML = formatTime(newTimeInSeconds);
 }
 
 function nextQuestion() {
@@ -297,7 +304,6 @@ function nextQuestion() {
   if (currentQuestionIndex < questions.length) {
     loadQuestion();
     submitBtn.style.display = "none";
-    nextBtn.style.display = "none"; // Hide the next button initially
   } else {
     endGame();
   }
@@ -305,12 +311,10 @@ function nextQuestion() {
 
 function endGame() {
   scoreboard.innerHTML = `Your final score is ${score} out of ${questions.length}.`;
-  const userInitials = prompt("Enter your initials:");
 
-  // Save user's initials and score to local storage
+  const userInitials = prompt("Enter your initials:");
   saveScore(userInitials, score);
 
-  // Display previous scores
   displayPreviousScores(true);
 
   submitBtn.style.display = "none";
@@ -322,14 +326,12 @@ function endGame() {
 
 function saveScore(initials, score) {
   clearInterval(timer);
-  // Retrieve previous scores from local storage
+
   const previousScores =
     JSON.parse(localStorage.getItem("previousScores")) || [];
 
-  // Add current score to the list
   previousScores.push({ initials, score });
 
-  // Save updated scores to local storage
   localStorage.setItem("previousScores", JSON.stringify(previousScores));
 
   leaveQuiz();
@@ -344,7 +346,7 @@ previousScoresDiv.style.position = "fixed";
 previousScoresDiv.style.bottom = "0";
 previousScoresDiv.style.width = "100%";
 previousScoresDiv.style.maxHeight = "250px";
-previousScoresDiv.style.border = "1px solid #ccc"; // Border style
+previousScoresDiv.style.border = "1px solid #ccc";
 previousScoresDiv.style.padding = "10px";
 document.body.appendChild(previousScoresDiv);
 
@@ -354,7 +356,6 @@ function displayPreviousScores(show) {
   );
 
   if (show) {
-    // Retrieve previous scores from local storage
     const previousScores =
       JSON.parse(localStorage.getItem("previousScores")) || [];
 
@@ -362,7 +363,6 @@ function displayPreviousScores(show) {
       (entry) => entry.initials !== null
     );
 
-    // Display previous scores
     previousScoresContainer.innerHTML = "<h3>Previous Scores:</h3>";
     previousScores.forEach((entry) => {
       const entryElement = document.createElement("p");
@@ -370,7 +370,6 @@ function displayPreviousScores(show) {
       previousScoresContainer.appendChild(entryElement);
     });
   } else {
-    // Hide previous scores
     previousScoresContainer.innerHTML = "";
   }
 }
@@ -378,11 +377,23 @@ function displayPreviousScores(show) {
 function showFeedback(isCorrect) {
   const feedback = document.createElement("div");
   feedback.classList.add("feedback");
+  feedback.style.position = "fixed";
+  feedback.style.top = "50%";
+  feedback.style.left = "50%";
+  feedback.style.transform = "translate(-50%, -50%)";
+  feedback.style.backgroundColor = isCorrect ? "lightgreen" : "salmon";
+  feedback.style.padding = "10px";
+  feedback.style.borderRadius = "5px";
+  feedback.style.color = "white";
+  feedback.style.fontSize = "18px";
+  feedback.style.fontWeight = "bold";
+  feedback.style.textAlign = "center";
+  feedback.style.zIndex = "9999";
   feedback.textContent = isCorrect ? "Correct! 🎉" : "Wrong! 😞";
   document.body.appendChild(feedback);
 
   if (isCorrect) {
-    score++; // Increment the score only if the answer is correct
+    score++;
   }
 
   scoreboard.innerHTML = `Correct Answers: ${score} out of 20`;
@@ -396,7 +407,6 @@ function showFeedback(isCorrect) {
   setTimeout(function () {
     document.body.removeChild(feedback);
 
-    // Check if the game has ended and update the scoreboard accordingly
     if (currentQuestionIndex >= questions.length) {
       scoreboard.innerHTML = `Your final score is ${score} out of ${questions.length}.`;
     }
@@ -404,11 +414,11 @@ function showFeedback(isCorrect) {
 }
 
 function startTimer() {
-  let timeRemaining = timeLimitInSeconds;
+  let timeRemaining = totalTime;
   timer = setInterval(function () {
     timeRemaining--;
     if (timeRemaining >= 0) {
-      timerDisplay.innerHTML = formatTime(timeRemaining); // Update the timer display
+      timerDisplay.innerHTML = formatTime(timeRemaining);
     } else {
       clearInterval(timer);
       endGame();
@@ -424,7 +434,6 @@ function formatTime(seconds) {
   return `${formattedMinutes}:${formattedSeconds}`;
 }
 
-// Event listeners
 startBtn.addEventListener("click", startQuiz);
 submitBtn.addEventListener("click", submitAnswer);
 leaveBtn.addEventListener("click", leaveQuiz);

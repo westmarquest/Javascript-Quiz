@@ -2,6 +2,7 @@
 #submit-btn,
 #next-btn {
   display: none;
+  margin-top: 25px;
 }
 
 ul {
@@ -37,21 +38,68 @@ ul li.selected {
 
 .scoreboard {
   font-size: 18px;
-  margin-top: 10px;
+  margin-bottom: 120px;
 }
 
 #start-btn {
   display: block;
   margin: auto;
-  margin-top: 20vh;
+  margin-top: 10vh;
 }
 
 #leave-btn {
   display: block;
   margin: auto;
-  margin-top: 20vh;
+  margin-top: 160px;
+}
+
+#timer {
+  background-color: #fff;
+  width: 80px;
+  margin-top: 20px;
+}
+
+#timer.timer {
+  background-color: #fff;
+  width: 60px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #fff;
 }
 
 h2 {
   text-align: center;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+h3 {
+  color: #fff;
+}
+
+body {
+  background-image: url("./Assets/hello-matrix.png");
+}
+
+#previous-scores-div {
+  height: 12vh;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 20px;
+}
+
+p {
+  color: #fff;
+}
+
+.bye-text {
+  color: white;
+  text-align: center;
+}
+
+.feedback {
+  margin-bottom: 150px;
 }
