@@ -194,8 +194,6 @@ function startQuiz() {
   submitBtn.style.display = "block";
   leaveBtn.style.display = "block";
 
-  timerDisplay.innerHTML = formatTime(totalTime);
-
   loadQuestion();
   startTimer();
   displayPreviousScores(true);
@@ -416,14 +414,16 @@ function showFeedback(isCorrect) {
 function startTimer() {
   let timeRemaining = totalTime;
   timer = setInterval(function () {
-    timeRemaining--;
+    timeRemaining--; // Decrement the remaining time
     if (timeRemaining >= 0) {
+      // If timeRemaining is non-negative, update the timer display
       timerDisplay.innerHTML = formatTime(timeRemaining);
     } else {
+      // If time runs out, clear the interval and end the game
       clearInterval(timer);
       endGame();
     }
-  }, 1000);
+  }, 1000); // Update the timer every second
 }
 
 function formatTime(seconds) {
