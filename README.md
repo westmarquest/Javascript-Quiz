@@ -8,12 +8,12 @@ This web application is designed to run in the browser, featuring dynamically up
 
 ## Features
 
--Timed quiz on JavaScript fundamentals.
--Multiple-choice questions with dynamically generated content.
--Responsive user interface for seamless interaction.
--High score storage for tracking progress over time.
+- Timed quiz on JavaScript fundamentals.
+- Multiple-choice questions with dynamically generated content.
+- Responsive user interface for seamless interaction.
+- High score storage for tracking progress over time.
 
-### -will you choose blue or red?
+### - will you choose blue or red?
 
 ## Website
 
